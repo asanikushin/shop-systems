@@ -50,7 +50,8 @@ class MemoryStorage(BaseStorage):
         contain, index = self._check_and_index(prod_id)
         if not contain:
             return None, statuses["product"]["notExists"]
-        product = self._data.pop(index)
+        product = self._get_index(index)
+        self._data[index] = None
         self._storage.pop(prod_id)
         return product, statuses["product"]["deleted"]
 
