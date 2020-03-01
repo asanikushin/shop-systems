@@ -6,7 +6,6 @@ from flask import jsonify, request
 
 def patch_product(prod_id=None):
     prod_id = prod_id or request.args.get("id")
-    print(prod_id)
     product, status = DBStorage.update_product(prod_id, request.method, **request.json)
     http_status = constants.responses[status]
 

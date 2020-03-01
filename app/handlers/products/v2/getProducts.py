@@ -16,7 +16,7 @@ def get_products():
     total_count = DBStorage.get_products_count()
     if len(options) != 0:
         options["count"] = min(max(0, total_count - options.get("offset", 0)), options.get("count", 0))
-    return jsonify(products=products, total_count=total_count, **options), http_status
+    return jsonify(products=products, total_count=total_count, status=status, **options), http_status
 
 
 def get_product(prod_id=None):

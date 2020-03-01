@@ -51,6 +51,7 @@ class MemoryStorage(BaseStorage):
         if not contain:
             return None, statuses["product"]["notExists"]
         product = self._data.pop(index)
+        self._storage.pop(prod_id)
         return product, statuses["product"]["deleted"]
 
     def update_product(self, prod_id, method="PATCH", **options) -> MODEL_WITH_STATUS:
