@@ -650,7 +650,7 @@
       },
       "patch": {
         "tags": [
-          "products/v1"
+          "products/v2"
         ],
         "summary": "Update existing product",
         "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должно быть хотя бы одно из полей: `name` или `category`",
