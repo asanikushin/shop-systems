@@ -1,1199 +1,741 @@
 {
-    "openapi": "3.0.1",
-    "info": {
-        "title": "Магазин",
-        "description": "Простое REST API для магазина\nБез указания версии данные хранятся только в памяти, во второй версии в базе",
-        "version": "0.1"
-    },
-    "servers": [
-        {
-            "url": "http://127.0.0.1:8081"
-        }
-    ],
-    "paths": {
-        "/products/get_id": {
-            "get": {
-                "tags": [
-                    "v1"
-                ],
-                "description": "Позволяет получить информацию по определенному товару по его ID",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "0"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Товар найдем и показан",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"furn\", \n    \"id\": \"0\", \n    \"name\": \"bed\"\n  }, \n  \"status\": 5\n}\n"
-                                    },
-                                    "1": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"furn\", \n    \"id\": \"1\", \n    \"name\": \"bed\"\n  }, \n  \"status\": 5\n}\n"
-                                    },
-                                    "2": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"furn\", \n    \"id\": \"2\", \n    \"name\": \"bed\"\n  }, \n  \"status\": 5\n}\n"
-                                    },
-                                    "3": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"3\", \n    \"name\": \"milk\"\n  }, \n  \"status\": 5\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Нет товара с таким `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "100": {
-                                        "value": "no such product id: 100"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/get": {
-            "get": {
-                "tags": [
-                    "v1"
-                ],
-                "description": "Получить спискок всех товаров.\nДля пагинации используются аргументы `offset` для отступа и `count` для количества",
-                "parameters": [
-                    {
-                        "name": "offset",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "1"
-                    },
-                    {
-                        "name": "count",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "2"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Товары найдем и показаны. Даже для пустого количества будет этот статус",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer"
-                                        },
-                                        "total_count": {
-                                            "type": "integer"
-                                        },
-                                        "products": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string"
-                                                    },
-                                                    "id": {
-                                                        "type": "string"
-                                                    },
-                                                    "category": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"count\": 2, \n  \"offset\": 1, \n  \"products\": [\n    {\n      \"category\": \"food\", \n      \"id\": \"3\", \n      \"name\": \"tea\"\n    }, \n    {\n      \"category\": \"food\", \n      \"id\": \"4\", \n      \"name\": \"asfafa\"\n    }\n  ], \n  \"total_count\": 5, \n  \"status\": 5\n}\n"
-                                    },
-                                    "2": {
-                                        "value": "{\n  \"products\": [\n    {\n      \"category\": \"food\", \n      \"id\": \"0\", \n      \"name\": \"milk\"\n    }, \n    {\n      \"category\": \"food\", \n      \"id\": \"2\", \n      \"name\": \"meet\"\n    }\n  ], \n  \"total_count\": 2, \n  \"status\": 5\n}\n"
-                                    },
-                                    "3": {
-                                        "value": "{\n  \"products\": [\n    {\n      \"category\": \"food\", \n      \"id\": \"0\", \n      \"name\": \"milk\"\n    }\n  ], \n  \"total_count\": 1, \n  \"status\": 5\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/add": {
-            "post": {
-                "tags": [
-                    "v1"
-                ],
-                "description": "Позволяет создать товар",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "category": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\n    \"name\": \"mouse\",\n    \"category\": \"animal\"\n}"
-                                },
-                                "1": {
-                                    "value": "{\n    \"name\": \"mouse\"\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Товар успешно создан, возвращается его `ID` и статус",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"id\": \"0\", \n  \"status\": 1\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Не хватает данных для создания товара",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": "missing product data"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/delete_id": {
-            "delete": {
-                "tags": [
-                    "v1"
-                ],
-                "description": "Позволяет удалить товар по его `ID`",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "1"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Товар успешно удален и показан пользователю",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"animal\", \n    \"id\": \"1\", \n    \"name\": \"mouse\"\n  }, \n  \"status\": 3\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Нет товара с таким `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "100": {
-                                        "value": "no such product id: 100"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/update_id": {
-            "put": {
-                "tags": [
-                    "v1"
-                ],
-                "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должен быть полный набор полей",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "2"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "category": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"name\": \"telephon\"\n}"
-                                },
-                                "1": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"id\": \"10\"\n}"
-                                },
-                                "2": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "3": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "4": {
-                                    "value": " {\n    \"category\": \"food\",\n    \"name\": \"milk\"\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Товар успешно обновлен и показана новая версия",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"2\", \n    \"name\": \"milk\"\n  }, \n  \"status\": 2\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Не хватает данных для создания товара, либо попытка затереть его `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": [
-                                    {
-                                        "value": "missing product data"
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Попытка перезатереть ID товара",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "replacing product ID"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "patch": {
-                "tags": [
-                    "v1"
-                ],
-                "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должно быть хотя бы одно поле",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "3"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "category": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"name\": \"telephon\"\n}"
-                                },
-                                "1": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"id\": \"10\"\n}"
-                                },
-                                "2": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "3": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "4": {
-                                    "value": " {\n    \"category\": \"food\",\n    \"name\": \"milk\"\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Товар успешно обновлен и показана новая версия",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"4\", \n    \"name\": \"telephon\"\n  }, \n  \"status\": 2\n}\n"
-                                    },
-                                    "1": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"3\", \n    \"name\": \"mouse\"\n  }, \n  \"status\": 2\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Не хватает данных для создания товара, либо попытка затереть его `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": [
-                                    {
-                                        "value": "missing product data"
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Попытка перезатереть ID товара",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "replacing product ID"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/v2/get_id": {
-            "get": {
-                "tags": [
-                    "v2"
-                ],
-                "description": "Позволяет получить информацию по определенному товару по его ID",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "0"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Товар найдем и показан",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"furn\", \n    \"id\": \"0\", \n    \"name\": \"bed\"\n  }, \n  \"status\": 5\n}\n"
-                                    },
-                                    "1": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"furn\", \n    \"id\": \"1\", \n    \"name\": \"bed\"\n  }, \n  \"status\": 5\n}\n"
-                                    },
-                                    "2": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"furn\", \n    \"id\": \"2\", \n    \"name\": \"bed\"\n  }, \n  \"status\": 5\n}\n"
-                                    },
-                                    "3": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"3\", \n    \"name\": \"milk\"\n  }, \n  \"status\": 5\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Нет товара с таким `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "100": {
-                                        "value": "no such product id: 100"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/v2/get": {
-            "get": {
-                "tags": [
-                    "v2"
-                ],
-                "description": "Получить спискок всех товаров.\nДля пагинации используются аргументы `offset` для отступа и `count` для количества",
-                "parameters": [
-                    {
-                        "name": "offset",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "1"
-                    },
-                    {
-                        "name": "count",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "2"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Товары найдем и показаны. Даже для пустого количества будет этот статус",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer"
-                                        },
-                                        "total_count": {
-                                            "type": "integer"
-                                        },
-                                        "products": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string"
-                                                    },
-                                                    "id": {
-                                                        "type": "string"
-                                                    },
-                                                    "category": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"count\": 2, \n  \"offset\": 1, \n  \"products\": [\n    {\n      \"category\": \"food\", \n      \"id\": \"3\", \n      \"name\": \"tea\"\n    }, \n    {\n      \"category\": \"food\", \n      \"id\": \"4\", \n      \"name\": \"asfafa\"\n    }\n  ], \n  \"total_count\": 5, \n  \"status\": 5\n}\n"
-                                    },
-                                    "2": {
-                                        "value": "{\n  \"products\": [\n    {\n      \"category\": \"food\", \n      \"id\": \"0\", \n      \"name\": \"milk\"\n    }, \n    {\n      \"category\": \"food\", \n      \"id\": \"2\", \n      \"name\": \"meet\"\n    }\n  ], \n  \"total_count\": 2, \n  \"status\": 5\n}\n"
-                                    },
-                                    "3": {
-                                        "value": "{\n  \"products\": [\n    {\n      \"category\": \"food\", \n      \"id\": \"0\", \n      \"name\": \"milk\"\n    }\n  ], \n  \"total_count\": 1, \n  \"status\": 5\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/v2/add": {
-            "post": {
-                "tags": [
-                    "v2"
-                ],
-                "description": "Позволяет создать товар",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "category": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\n    \"name\": \"mouse\",\n    \"category\": \"animal\"\n}"
-                                },
-                                "1": {
-                                    "value": "{\n    \"name\": \"mouse\"\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Товар успешно создан, возвращается его `ID` и статус",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"id\": \"0\", \n  \"status\": 1\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Не хватает данных для создания товара",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": "missing product data"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/v2/delete_id": {
-            "delete": {
-                "tags": [
-                    "v2"
-                ],
-                "description": "Позволяет удалить товар по его `ID`",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "1"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Товар успешно удален и показан пользователю",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"animal\", \n    \"id\": \"1\", \n    \"name\": \"mouse\"\n  }, \n  \"status\": 3\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Нет товара с таким `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "100": {
-                                        "value": "no such product id: 100"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        },
-        "/products/v2/update_id": {
-            "put": {
-                "tags": [
-                    "v2"
-                ],
-                "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должен быть полный набор полей",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "2"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "category": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"name\": \"telephon\"\n}"
-                                },
-                                "1": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"id\": \"10\"\n}"
-                                },
-                                "2": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "3": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "4": {
-                                    "value": " {\n    \"category\": \"food\",\n    \"name\": \"milk\"\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Товар успешно обновлен и показана новая версия",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"2\", \n    \"name\": \"milk\"\n  }, \n  \"status\": 2\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Не хватает данных для создания товара, либо попытка затереть его `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": [
-                                    {
-                                        "value": "missing product data"
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Попытка перезатереть ID товара",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "replacing product ID"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "patch": {
-                "tags": [
-                    "v2"
-                ],
-                "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должно быть хотя бы одно поле",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "3"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "category": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"name\": \"telephon\"\n}"
-                                },
-                                "1": {
-                                    "value": " {\n    \"category\": \"food\", \n    \"id\": \"10\"\n}"
-                                },
-                                "2": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "3": {
-                                    "value": " {\n    \"category\": \"food\"\n}"
-                                },
-                                "4": {
-                                    "value": " {\n    \"category\": \"food\",\n    \"name\": \"milk\"\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Товар успешно обновлен и показана новая версия",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "product": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "category": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"4\", \n    \"name\": \"telephon\"\n  }, \n  \"status\": 2\n}\n"
-                                    },
-                                    "1": {
-                                        "value": "{\n  \"product\": {\n    \"category\": \"food\", \n    \"id\": \"3\", \n    \"name\": \"mouse\"\n  }, \n  \"status\": 2\n}\n"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Не хватает данных для создания товара, либо попытка затереть его `ID`",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": [
-                                    {
-                                        "value": "missing product data"
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Попытка перезатереть ID товара",
-                        "content": {
-                            "text/html; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "0": {
-                                        "value": "replacing product ID"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "http://127.0.0.1:8081"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "http://127.0.0.1:8081"
-                }
-            ]
-        }
+  "swagger": "2.0",
+  "info": {
+    "title": "Магазин",
+    "description": "Простое REST API для магазина\n Без указания версии данные хранятся только в памяти, во второй версии в базе. Даные между версиями не синхронизируются",
+    "version": "0.1",
+    "contact": {
+      "email": "asanikushin@edu.hse.ru"
     }
+  },
+  "host": "127.0.0.1:8081",
+  "tags": [
+    {
+      "name": "products/v1",
+      "description": "Старая версия, будет удалена"
+    },
+    {
+      "name": "products/v2",
+      "description": "Новая версия для работы с товарами"
+    }
+  ],
+  "paths": {
+    "/products/get_id": {
+      "get": {
+        "tags": [
+          "products/v1"
+        ],
+        "summary": "Get product by ID",
+        "description": "Позволяет получить полную информацию по определенному товару по его `ID`",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Товар найдем и показан",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 5
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      }
+    },
+    "/products/get": {
+      "get": {
+        "tags": [
+          "products/v1"
+        ],
+        "summary": "Get all products",
+        "description": "Получить спискок всех товаров.\nДля пагинации используются аргументы `offset` для отступа и `count` для количества",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "minimum": 0
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Товары найдем и показаны. Даже для пустого набора будет этот статус",
+            "schema": {
+              "type": "object",
+              "required": [
+                "total_amount",
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 5
+                },
+                "total_amount": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "offset": {
+                  "type": "integer",
+                  "description": "only if set in query"
+                },
+                "count": {
+                  "type": "integer",
+                  "description": "if set 'offset' or 'count' in query"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/add": {
+      "post": {
+        "tags": [
+          "products/v1"
+        ],
+        "summary": "Add a new product",
+        "description": "Создает новый товар с заданным названием и категорией",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Задает параметры нового товара\nДаже если задано поле `ID`, оно будет перезаписано и вернется новое значение",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Товар успешно создан, возвращается его `ID` и статус",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID"
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не хватает данных для создания товара",
+            "schema": {
+              "type": "string",
+              "example": "missing product data"
+            }
+          }
+        }
+      }
+    },
+    "/products/delete_id": {
+      "delete": {
+        "tags": [
+          "products/v1"
+        ],
+        "summary": "Delete existing product",
+        "description": "Позволяет удалить товар по его `ID`",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Товар успешно удален и показан пользователю",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 3
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      }
+    },
+    "/products/update_id": {
+      "put": {
+        "tags": [
+          "products/v1"
+        ],
+        "summary": "Update existing product",
+        "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должен быть полный набор полей",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Если задано поле `ID`, и оно отличается от параметра запроса, то будет ошибка обновления",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Товар успешно обновлен и показана новая версия",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 2
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Попытка перезатереть `ID` товара",
+            "schema": {
+              "type": "string",
+              "example": "replacing product ID"
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "products/v1"
+        ],
+        "summary": "Update existing product",
+        "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должно быть хотя бы одно из полей: `name` или `category`",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Если задано поле `ID`, и оно отличается от параметра запроса, то будет ошибка обновления",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Товар успешно обновлен и показана новая версия",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 2
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Попытка перезатереть `ID` товара",
+            "schema": {
+              "type": "string",
+              "example": "replacing product ID"
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      }
+    },
+    "/products/v2/get_id": {
+      "get": {
+        "tags": [
+          "products/v2"
+        ],
+        "summary": "Get product by ID",
+        "description": "Позволяет получить полную информацию по определенному товару по его `ID`",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Товар найдем и показан",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 5
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      }
+    },
+    "/products/v2/get": {
+      "get": {
+        "tags": [
+          "products/v2"
+        ],
+        "summary": "Get all products",
+        "description": "Получить спискок всех товаров.\nДля пагинации используются аргументы `offset` для отступа и `count` для количества",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "minimum": 0
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Товары найдем и показаны. Даже для пустого набора будет этот статус",
+            "schema": {
+              "type": "object",
+              "required": [
+                "total_amount",
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 5
+                },
+                "total_amount": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "offset": {
+                  "type": "integer",
+                  "description": "only if set in query"
+                },
+                "count": {
+                  "type": "integer",
+                  "description": "if set 'offset' or 'count' in query"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/v2/add": {
+      "post": {
+        "tags": [
+          "products/v2"
+        ],
+        "summary": "Add a new product",
+        "description": "Создает новый товар с заданным названием и категорией",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Задает параметры нового товара\nДаже если задано поле `ID`, оно будет перезаписано и вернется новое значение",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Товар успешно создан, возвращается его `ID` и статус",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/ID"
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не хватает данных для создания товара",
+            "schema": {
+              "type": "string",
+              "example": "missing product data"
+            }
+          }
+        }
+      }
+    },
+    "/products/v2/delete_id": {
+      "delete": {
+        "tags": [
+          "products/v2"
+        ],
+        "summary": "Delete existing product",
+        "description": "Позволяет удалить товар по его `ID`",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Товар успешно удален и показан пользователю",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 3
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      }
+    },
+    "/products/v2/update_id": {
+      "put": {
+        "tags": [
+          "products/v2"
+        ],
+        "summary": "Update existing product",
+        "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должен быть полный набор полей",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Если задано поле `ID`, и оно отличается от параметра запроса, то будет ошибка обновления",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Товар успешно обновлен и показана новая версия",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 2
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Попытка перезатереть `ID` товара",
+            "schema": {
+              "type": "string",
+              "example": "replacing product ID"
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "products/v1"
+        ],
+        "summary": "Update existing product",
+        "description": "Позволяет обновить информацию об определенном товаре по его `ID`.\nВ теле обязательно должно быть хотя бы одно из полей: `name` или `category`",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "Задает ID товара"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Если задано поле `ID`, и оно отличается от параметра запроса, то будет ошибка обновления",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Товар успешно обновлен и показана новая версия",
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "products"
+              ],
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                },
+                "status": {
+                  "type": "integer",
+                  "example": 2
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Попытка перезатереть `ID` товара",
+            "schema": {
+              "type": "string",
+              "example": "replacing product ID"
+            }
+          },
+          "404": {
+            "description": "Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`",
+            "schema": {
+              "type": "string",
+              "example": "no such product id: ID"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ID": {
+      "type": "integer"
+    },
+    "Product": {
+      "type": "object",
+      "required": [
+        "name",
+        "category"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ID"
+        },
+        "name": {
+          "type": "string",
+          "example": "table"
+        },
+        "category": {
+          "type": "string",
+          "example": "furniture"
+        }
+      }
+    }
+  }
 }
