@@ -1,6 +1,8 @@
 from app import constants
 from app.storage import DBStorage
 
+from app.common.errorResponse import create_error_with_status
+
 from flask import jsonify, request
 
 
@@ -9,7 +11,7 @@ def add_product():
     http_status = constants.responses[status]
 
     if status == constants.statuses["product"]["created"]:
-        body = jsonify(id=new_id, status=status)
+        body = dict(id=new_id, status=status)
     else:
-        body = "missing product data"
-    return body, http_status
+        body = create_error_with_status(status, "missing product data")
+    return jsonify(body), http_status

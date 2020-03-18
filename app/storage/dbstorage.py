@@ -15,6 +15,8 @@ class SQLStorage(BaseStorage):
 
     def add_product(self, name, **options) -> ID_WITH_STATUS:
         options.update({"name": name})
+        if "id" in options:
+            del options["id"]
         correct = check_model_options("create", options)
         if correct != statuses["internal"]["correctProductData"]:
             return None, correct
