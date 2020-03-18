@@ -14,5 +14,8 @@ statuses: Dict[str, Dict[str, STATUS]] = {
     },
     "internal": {
         "correctProductData": 8
+    },
+    "request": {
+        "badArguments": 9
     }
 }

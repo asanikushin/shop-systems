@@ -19,8 +19,8 @@ migrate = Migrate(app, db)
 from app.models.database import product
 from app.handlers import products_v1, products_v2
 
-app.register_blueprint(products_v1, url_prefix="/products")
-app.register_blueprint(products_v2, url_prefix="/products/v2")
+app.register_blueprint(products_v1, url_prefix="/products/v1")
+app.register_blueprint(products_v2, url_prefix="/products")
 
 
 from swagger_ui import api_doc

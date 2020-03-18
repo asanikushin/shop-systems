@@ -1,6 +1,8 @@
 from app import constants
 from app.storage import DBStorage
 
+from app.common.errorResponse import create_error_with_status
+
 from flask import jsonify, request
 
 
@@ -10,11 +12,11 @@ def patch_product(prod_id=None):
     http_status = constants.responses[status]
 
     if status == constants.statuses["product"]["modified"]:
-        body = jsonify(product=product, status=status)
+        body = dict(product=product, status=status)
     elif status == constants.statuses["product"]["notExists"]:
-        body = f"no such product id: {prod_id}"
+        body = create_error_with_status(status, "no such product id: {{ID}}", ID=prod_id)
     elif status == constants.statuses["product"]["missingData"]:
-        body = "missing product data"
+        body = create_error_with_status(status, "missing product data")
     else:  # status == constants.statuses["product"]["replacingID"]:
-        body = f"replacing product ID"
-    return body, http_status
+        body = create_error_with_status(status, "replacing product ID")
+    return jsonify(body), http_status

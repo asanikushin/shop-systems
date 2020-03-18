@@ -12,3 +12,8 @@ responses: Dict[STATUS, RESPONSE] = {
     statuses["product"]["missingData"]: 400,
     statuses["product"]["replacingID"]: 403,
 }
+
+common_responses: Dict[str, RESPONSE] = {
+    "Bad request": 400,
+    "Not found": 404
+}
