@@ -9,16 +9,23 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: shop
       POSTGRES_PASSWORD: ue3um2yRJA
-    
-  app:
-    build: .
-    image: shop:latest
+
+  shop:
+    build:
+      context: .
+      dockerfile: shop/Dockerfile
     environment:
       FLASK_ENV: config.ProductionConfig
-      SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"    
+      SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"
     ports:
-        - "8081:8080"
+      - "8081:8080"
 
+  auth:
+    build:
+      context: .
+      dockerfile: auth/Dockerfile
+    ports:
+      - "5000:8080"
 
 networks:
   shopnet:
