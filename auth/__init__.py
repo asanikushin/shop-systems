@@ -4,14 +4,21 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-from auth import config as config
+import logging
 import os
 
 db = SQLAlchemy()
 migrate = Migrate()
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
-def create_app(config_class="auth.config.DevelopmentConfig"):
+
+def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
     app.config.from_object(os.environ.get('FLASK_ENV') or config_class)
     app.json_encoder = CustomJSONEncoder
@@ -33,5 +40,8 @@ def create_app(config_class="auth.config.DevelopmentConfig"):
     working_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(working_dir, '../swagger.yaml')
     api_doc(app, config_path=config_path, url_prefix='/swagger', title='API doc', editor=True)
+
+    log = logging.getLogger(app.name)
+    log.setLevel(app.config["LOG_LEVEL"])
 
     return app

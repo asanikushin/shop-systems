@@ -21,12 +21,13 @@ responses: Dict[STATUS, RESPONSE] = {
 
     statuses["tokens"]["created"]: 201,
     statuses["tokens"]["noSuchToken"]: 404,
-    statuses["tokens"]["refreshExpired"]: 400,
-    statuses["tokens"]["accessExpired"]: 400,
+    statuses["tokens"]["refreshTokenExpired"]: 400,
+    statuses["tokens"]["accessTokenExpired"]: 400,
     statuses["tokens"]["accessOk"]: 200,
 }
 
 common_responses: Dict[str, RESPONSE] = {
     "Bad request": 400,
-    "Not found": 404
+    "No auth": 401,
+    "Not found": 404,
 }

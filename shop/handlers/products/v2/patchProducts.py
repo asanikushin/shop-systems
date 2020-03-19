@@ -3,11 +3,13 @@ from shop.storage import DBStorage
 
 from utils import create_error_with_status
 
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 
 
 def patch_product(prod_id=None):
     prod_id = prod_id or request.args.get("id")
+    current_app.logger.info(f"Updating product by {request.environ['user_email']} and product id {prod_id}")
+
     product, status = DBStorage.update_product(prod_id, request.method, **request.json)
     http_status = constants.responses[status]
 

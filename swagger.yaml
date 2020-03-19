@@ -9,6 +9,9 @@ info:
   version: "0.1"
 servers:
 - url: //127.0.0.1:8081/
+  description: url for shop service
+- url: //127.0.0.1:5000/
+  description: url for auth service
 tags:
 - name: products
   description: Основная версия для работы с товарами

@@ -10,6 +10,7 @@ COPY auth/run.sh ./
 RUN chmod +x run.sh runner.py
 
 COPY auth/migrations migrations
+COPY swagger.yaml ./
 COPY utils utils
 COPY constants constants
 COPY auth auth

@@ -47,7 +47,7 @@ class Storage:
 
         refresh_token = secrets.token_hex(64)
         access_token = str(jwt.encode(
-            {"data": email, "exp": datetime.datetime.utcnow() + current_app.config["ACCESS_TOKEN_EXPIRATION"]},
+            {"email": email, "exp": datetime.datetime.utcnow() + current_app.config["ACCESS_TOKEN_EXPIRATION"]},
             current_app.config["TOKENS_SECRET"]))
 
         session = Session(refreshToken=refresh_token,
@@ -69,12 +69,12 @@ class Storage:
             return None, None, statuses["tokens"]["noSuchToken"]
 
         if now > session.refreshTokenExpireAt:
-            return None, None, statuses["tokens"]["refreshExpired"]
+            return None, None, statuses["tokens"]["refreshTokenExpired"]
         user = User.query.get(session.userId)
 
         refresh_token = secrets.token_hex(64)
         access_token = str(jwt.encode(
-            {"data": user.email, "exp": datetime.datetime.utcnow() + current_app.config["ACCESS_TOKEN_EXPIRATION"]},
+            {"email": user.email, "exp": datetime.datetime.utcnow() + current_app.config["ACCESS_TOKEN_EXPIRATION"]},
             current_app.config["TOKENS_SECRET"], algorithm='HS256'))[2:-1]
 
         session.refreshToken = refresh_token
@@ -88,5 +88,5 @@ class Storage:
         try:
             value = jwt.decode(access_token, current_app.config["TOKENS_SECRET"], algorithms=['HS256'])
         except jwt.ExpiredSignatureError as err:
-            return err, statuses["tokens"]["accessExpired"]
+            return err, statuses["tokens"]["accessTokenExpired"]
         return value, statuses["tokens"]["accessOk"]

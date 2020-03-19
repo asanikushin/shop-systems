@@ -10,6 +10,7 @@ COPY shop/run.sh ./
 RUN chmod +x run.sh runner.py
 
 COPY shop/migrations migrations
+COPY swagger.yaml ./
 COPY utils utils
 COPY constants constants
 COPY shop shop

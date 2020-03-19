@@ -3,12 +3,14 @@ from auth.storage import Storage
 
 from utils import create_error_with_status
 
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 
 
 def sing_in():
     email = request.json["email"]
     password = request.json["password"]
+
+    current_app.logger.info(f"Sing in for {email}")
 
     access, refresh, status = Storage.create_session(email, password)
     http_status = constants.responses[status]

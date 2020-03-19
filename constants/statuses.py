@@ -30,8 +30,8 @@ statuses: Dict[str, Dict[str, STATUS]] = {
     "tokens": {
         "created": next(_nums),  # 14
         "noSuchToken": next(_nums),  # 15
-        "refreshExpired": next(_nums),  # 16
-        "accessExpired": next(_nums),  # 17
+        "refreshTokenExpired": next(_nums),  # 16
+        "accessTokenExpired": next(_nums),  # 17
         "accessOk": next(_nums),  # 18
     }
 }

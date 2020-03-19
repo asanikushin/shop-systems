@@ -4,28 +4,44 @@ services:
   db:
     image: postgres
     networks:
-      - shopnet
+      app_net:
     environment:
       POSTGRES_USER: admin
       POSTGRES_DB: shop
       POSTGRES_PASSWORD: ue3um2yRJA
+    ports:
+      - 5432:5432
 
   shop:
     build:
       context: .
       dockerfile: shop/Dockerfile
+    links:
+      - auth
+    networks:
+      app_net:
     environment:
       FLASK_ENV: config.ProductionConfig
       SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"
+      AUTH_URL: auth
     ports:
       - "8081:8080"
+    depends_on:
+      - db
+      - auth
 
   auth:
     build:
       context: .
       dockerfile: auth/Dockerfile
+    networks:
+      app_net:
+    environment:
+      SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"
     ports:
-      - "5000:8080"
+      - "8082:5000"
+    depends_on:
+      - db
 
 networks:
-  shopnet:
+  app_net:
