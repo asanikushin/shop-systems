@@ -1,6 +1,11 @@
 # Интернет магазин
 Базовый API для интернет магазина
 
+## Архетиктура системы
+<object data='https://pastebin.com/raw/Kt46pCSG' type='image/svg'></object>
+![architecture](architecture.svg)
+
+
 ## Методы REST API
 Должны быть реализованые следующие методы:
 * добавить новый товар;
@@ -24,5 +29,5 @@ Swagger схема находится на http://127.0.0.1:8081/swagger
 
 ```
 cd shop-systems
-docker build -t shop:latest . && docker-compose up
+docker-compose up --build
 ```

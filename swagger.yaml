@@ -3,44 +3,44 @@ info:
   title: Магазин
   description: |-
     Простое REST API для магазина
-     Без указания версии данные хранятся только в памяти, во второй версии в базе. Даные между версиями не синхронизируются
   contact:
     email: asanikushin@edu.hse.ru
-  version: "0.1"
+  version: '0.1'
 servers:
-- url: //127.0.0.1:8081/
-  description: url for shop service
-- url: //127.0.0.1:5000/
-  description: url for auth service
+  - url: '//127.0.0.1:8081/'
+    description: url for shop service
+  - url: '//127.0.0.1:5000/'
+    description: url for auth service
 tags:
-- name: products
-  description: Основная версия для работы с товарами
-- name: products/v1
-  description: Старая версия, будет удалена
+  - name: products
+    description: Основная версия для работы с товарами
+  - name: auth
+    description: Методы для авторизации
+  - name: products/v1
+    description: 'Старая версия, будет удалена'
 paths:
-  /products/v1/get_id:
+  '/products/{id}':
     get:
       tags:
-      - products/v1
+        - products
       summary: Get product by ID
-      description: Позволяет получить полную информацию по определенному товару по
-        его `ID`
+      description: Позволяет получить полную информацию по определенному товару по его `ID`
       parameters:
-      - name: id
-        in: query
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
+        - name: id
+          in: path
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
       responses:
-        200:
+        '200':
           description: Товар найдем и показан
           content:
             application/json:
               schema:
                 required:
-                - products
-                - status
+                  - products
+                  - status
                 type: object
                 properties:
                   products:
@@ -50,9 +50,687 @@ paths:
                   status:
                     type: integer
                     example: 5
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 4
+    put:
+      tags:
+        - products
+      summary: Update existing product
+      description: |-
+        Позволяет обновить информацию об определенном товаре по его `ID`.
+        В теле обязательно должен быть полный набор полей
+      parameters:
+        - name: id
+          in: path
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
+        - name: accessToken
+          in: header
+          schema:
+            $ref: '#/components/schemas/AccessToken'
+          required: true
+      requestBody:
+        description: >-
+          Если задано поле `ID`, и оно отличается от параметра запроса, то будет
+          ошибка обновления
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        '202':
+          description: Товар успешно обновлен и показана новая версия
+          content:
+            application/json:
+              schema:
+                required:
+                  - products
+                  - status
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  status:
+                    type: integer
+                    example: 2
+        '400':
+          description: Не хватает данных для обновления товара
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 6
+        '403':
+          description: Попытка перезатереть `ID` товара
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 7
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 4
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+        - products
+      summary: Delete existing product
+      description: Позволяет удалить товар по его `ID`
+      parameters:
+        - name: id
+          in: path
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Товар успешно удален и показан пользователю
+          content:
+            application/json:
+              schema:
+                required:
+                  - products
+                  - status
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  status:
+                    type: integer
+                    example: 3
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 4
+    patch:
+      tags:
+        - products
+      summary: Update existing product
+      description: >-
+        Позволяет обновить информацию об определенном товаре по его `ID`.
+
+        В теле обязательно должно быть хотя бы одно из полей: `name` или
+        `category`
+      parameters:
+        - name: id
+          in: path
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: >-
+          Если задано поле `ID`, и оно отличается от параметра запроса, то будет
+          ошибка обновления
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        '202':
+          description: Товар успешно обновлен и показана новая версия
+          content:
+            application/json:
+              schema:
+                required:
+                  - products
+                  - status
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  status:
+                    type: integer
+                    example: 2
+        '400':
+          description: Не хватает данных для обновления товара
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 6
+        '403':
+          description: Попытка перезатереть `ID` товара
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 7
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 4
+      x-codegen-request-body-name: body
+  /products:
+    get:
+      tags:
+        - products
+      summary: Get all products
+      description: >-
+        Получить спискок всех товаров.
+
+        Для пагинации используются аргументы `offset` для отступа и `count` для
+        количества
+      parameters:
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+        - name: count
+          in: query
+          schema:
+            maximum: 50
+            minimum: 0
+            type: integer
+      responses:
+        '200':
+          description: Товары найдем и показаны. Даже для пустого набора будет этот статус
+          content:
+            application/json:
+              schema:
+                required:
+                  - products
+                  - status
+                  - total_amount
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  status:
+                    type: integer
+                    example: 5
+                  total_amount:
+                    type: integer
+                    example: 1
+                  offset:
+                    type: integer
+                    description: only if set in query
+                  count:
+                    type: integer
+                    description: if set 'offset' or 'count' in query
+        '400':
+          description: НЕкорректные парметры запроса (отрицательный offset)
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 9
+    post:
+      tags:
+        - products
+      summary: Add a new product
+      description: Создает новый товар с заданным названием и категорией
+      requestBody:
+        description: >-
+          Задает параметры нового товара
+
+          Даже если задано поле `ID`, оно будет перезаписано и вернется новое
+          значение
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        '201':
+          description: 'Товар успешно создан, возвращается его `ID` и статус'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/ID'
+                  status:
+                    type: integer
+                    example: 1
+        '400':
+          description: Не хватает данных для создания товара
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 6
+      x-codegen-request-body-name: body
+  /register:
+    post:
+      tags:
+        - auth
+      summary: register new user
+      description: Регистрирует нового пользователя по email. Почта должна быть уникальной
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: test@test.test
+                password:
+                  type: string
+                  example: '1234'
+      responses:
+        '201':
+          description: Пользователь успешно зарегестрирован
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  status:
+                    type: integer
+                    example: 10
+        '400':
+          description: Не хватает данных для регистрации пользователя
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 14
+        '406':
+          description: Пользователь с такой почтой уже зарегестрирован
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 11
+  /sing_in:
+    post:
+      tags:
+        - auth
+      summary: sing in for existing user
+      description: >-
+        Выполняет вход для зарегестрированного пользователя. В обмен на
+        почту+пароль выдает токены
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: test@test.test
+                password:
+                  type: string
+                  example: '1234'
+      responses:
+        '201':
+          description: Данные пользователя корректны и токены созданы
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accessToken
+                  - refreshToken
+                  - status
+                properties:
+                  accessToken:
+                    $ref: '#/components/schemas/AccessToken'
+                  refreshToken:
+                    $ref: '#/components/schemas/RefreshToken'
+                  status:
+                    type: integer
+                    example: 15
+        '400':
+          description: Не хватает данных для проверки пользователя
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 14
+        '403':
+          description: Неверный пароль
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 12
+        '404':
+          description: Пользователя с такой почтой не существует
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 13
+  /refresh:
+    post:
+      tags:
+        - auth
+      summary: refresh existing token pair
+      description: Обновляет пару токенов по токену обновления
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  $ref: '#/components/schemas/RefreshToken'
+      responses:
+        '201':
+          description: 'Токен обновления корректен и не истек, токены пересозданы'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accessToken
+                  - refreshToken
+                  - status
+                properties:
+                  accessToken:
+                    $ref: '#/components/schemas/AccessToken'
+                  refreshToken:
+                    $ref: '#/components/schemas/RefreshToken'
+                  status:
+                    type: integer
+                    example: 15
+        '400':
+          description: Не задан токен
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 20
+        '403':
+          description: Токен обновления истек
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 17
+        '404':
+          description: Не найдено сессии для этого токена
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 16
+  /validate:
+    post:
+      tags:
+        - auth
+      summary: validate access token
+      description: Проверят корректность токена и возврщает сего содержимое
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  $ref: '#/components/schemas/AccessToken'
+      responses:
+        '201':
+          description: 'Токен корректен и не истек, возвращется его содержимое'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - value
+                  - status
+                properties:
+                  status:
+                    type: integer
+                    example: 19
+                  value:
+                    type: object
+        '400':
+          description: Не задан токен
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 20
+        '403':
+          description: Токен истек
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 18
+  /products/v1/get_id:
+    get:
+      tags:
+        - products/v1
+      summary: Get product by ID
+      description: Позволяет получить полную информацию по определенному товару по его `ID`
+      parameters:
+        - name: id
+          in: query
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Товар найдем и показан
+          content:
+            application/json:
+              schema:
+                required:
+                  - products
+                  - status
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  status:
+                    type: integer
+                    example: 5
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
           content:
             application/json:
               schema:
@@ -62,34 +740,35 @@ paths:
   /products/v1/get:
     get:
       tags:
-      - products/v1
+        - products/v1
       summary: Get all products
-      description: |-
+      description: >-
         Получить спискок всех товаров.
-        Для пагинации используются аргументы `offset` для отступа и `count` для количества
+
+        Для пагинации используются аргументы `offset` для отступа и `count` для
+        количества
       parameters:
-      - name: offset
-        in: query
-        schema:
-          minimum: 0
-          type: integer
-      - name: count
-        in: query
-        schema:
-          maximum: 50
-          minimum: 0
-          type: integer
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+        - name: count
+          in: query
+          schema:
+            maximum: 50
+            minimum: 0
+            type: integer
       responses:
-        200:
-          description: Товары найдем и показаны. Даже для пустого набора будет этот
-            статус
+        '200':
+          description: Товары найдем и показаны. Даже для пустого набора будет этот статус
           content:
             application/json:
               schema:
                 required:
-                - products
-                - status
-                - total_amount
+                  - products
+                  - status
+                  - total_amount
                 type: object
                 properties:
                   products:
@@ -112,21 +791,23 @@ paths:
   /products/v1/add:
     post:
       tags:
-      - products/v1
+        - products/v1
       summary: Add a new product
       description: Создает новый товар с заданным названием и категорией
       requestBody:
-        description: |-
+        description: >-
           Задает параметры нового товара
-          Даже если задано поле `ID`, оно будет перезаписано и вернется новое значение
+
+          Даже если задано поле `ID`, оно будет перезаписано и вернется новое
+          значение
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Product'
         required: true
       responses:
-        201:
-          description: Товар успешно создан, возвращается его `ID` и статус
+        '201':
+          description: 'Товар успешно создан, возвращается его `ID` и статус'
           content:
             application/json:
               schema:
@@ -137,7 +818,7 @@ paths:
                   status:
                     type: integer
                     example: 1
-        400:
+        '400':
           description: Не хватает данных для создания товара
           content:
             application/json:
@@ -149,25 +830,25 @@ paths:
   /products/v1/delete_id:
     delete:
       tags:
-      - products/v1
+        - products/v1
       summary: Delete existing product
       description: Позволяет удалить товар по его `ID`
       parameters:
-      - name: id
-        in: query
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
+        - name: id
+          in: query
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
       responses:
-        200:
+        '200':
           description: Товар успешно удален и показан пользователю
           content:
             application/json:
               schema:
                 required:
-                - products
-                - status
+                  - products
+                  - status
                 type: object
                 properties:
                   products:
@@ -177,9 +858,8 @@ paths:
                   status:
                     type: integer
                     example: 3
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
           content:
             application/json:
               schema:
@@ -189,35 +869,36 @@ paths:
   /products/v1/update_id:
     put:
       tags:
-      - products/v1
+        - products/v1
       summary: Update existing product
       description: |-
         Позволяет обновить информацию об определенном товаре по его `ID`.
         В теле обязательно должен быть полный набор полей
       parameters:
-      - name: id
-        in: query
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
+        - name: id
+          in: query
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
       requestBody:
-        description: Если задано поле `ID`, и оно отличается от параметра запроса,
-          то будет ошибка обновления
+        description: >-
+          Если задано поле `ID`, и оно отличается от параметра запроса, то будет
+          ошибка обновления
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Product'
         required: true
       responses:
-        202:
+        '202':
           description: Товар успешно обновлен и показана новая версия
           content:
             application/json:
               schema:
                 required:
-                - products
-                - status
+                  - products
+                  - status
                 type: object
                 properties:
                   products:
@@ -227,16 +908,15 @@ paths:
                   status:
                     type: integer
                     example: 2
-        403:
+        '403':
           description: Попытка перезатереть `ID` товара
           content:
             application/json:
               schema:
                 type: string
                 example: replacing product ID
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
           content:
             application/json:
               schema:
@@ -246,35 +926,38 @@ paths:
       x-codegen-request-body-name: body
     patch:
       tags:
-      - products/v1
+        - products/v1
       summary: Update existing product
-      description: |-
+      description: >-
         Позволяет обновить информацию об определенном товаре по его `ID`.
-        В теле обязательно должно быть хотя бы одно из полей: `name` или `category`
+
+        В теле обязательно должно быть хотя бы одно из полей: `name` или
+        `category`
       parameters:
-      - name: id
-        in: query
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
+        - name: id
+          in: query
+          description: Задает ID товара
+          required: true
+          schema:
+            type: integer
       requestBody:
-        description: Если задано поле `ID`, и оно отличается от параметра запроса,
-          то будет ошибка обновления
+        description: >-
+          Если задано поле `ID`, и оно отличается от параметра запроса, то будет
+          ошибка обновления
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Product'
         required: true
       responses:
-        202:
+        '202':
           description: Товар успешно обновлен и показана новая версия
           content:
             application/json:
               schema:
                 required:
-                - products
-                - status
+                  - products
+                  - status
                 type: object
                 properties:
                   products:
@@ -284,382 +967,21 @@ paths:
                   status:
                     type: integer
                     example: 2
-        403:
+        '403':
           description: Попытка перезатереть `ID` товара
           content:
             application/json:
               schema:
                 type: string
                 example: replacing product ID
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
+        '404':
+          description: 'Нет товара с таким `ID`, в ответе возвращается запрошенный `ID`'
           content:
             application/json:
               schema:
                 type: string
                 example: 'no such product id: ID'
       deprecated: true
-      x-codegen-request-body-name: body
-  /products/{id}:
-    get:
-      tags:
-      - products
-      summary: Get product by ID
-      description: Позволяет получить полную информацию по определенному товару по
-        его `ID`
-      parameters:
-      - name: id
-        in: path
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
-      responses:
-        200:
-          description: Товар найдем и показан
-          content:
-            application/json:
-              schema:
-                required:
-                - products
-                - status
-                type: object
-                properties:
-                  products:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
-                  status:
-                    type: integer
-                    example: 5
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 4
-    put:
-      tags:
-      - products
-      summary: Update existing product
-      description: |-
-        Позволяет обновить информацию об определенном товаре по его `ID`.
-        В теле обязательно должен быть полный набор полей
-      parameters:
-      - name: id
-        in: path
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
-      requestBody:
-        description: Если задано поле `ID`, и оно отличается от параметра запроса,
-          то будет ошибка обновления
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-        required: true
-      responses:
-        202:
-          description: Товар успешно обновлен и показана новая версия
-          content:
-            application/json:
-              schema:
-                required:
-                - products
-                - status
-                type: object
-                properties:
-                  products:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
-                  status:
-                    type: integer
-                    example: 2
-        400:
-          description: Не хватает данных для обновления товара
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 6
-        403:
-          description: Попытка перезатереть `ID` товара
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 7
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 4
-      x-codegen-request-body-name: body
-    delete:
-      tags:
-      - products
-      summary: Delete existing product
-      description: Позволяет удалить товар по его `ID`
-      parameters:
-      - name: id
-        in: path
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
-      responses:
-        200:
-          description: Товар успешно удален и показан пользователю
-          content:
-            application/json:
-              schema:
-                required:
-                - products
-                - status
-                type: object
-                properties:
-                  products:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
-                  status:
-                    type: integer
-                    example: 3
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 4
-    patch:
-      tags:
-      - products
-      summary: Update existing product
-      description: |-
-        Позволяет обновить информацию об определенном товаре по его `ID`.
-        В теле обязательно должно быть хотя бы одно из полей: `name` или `category`
-      parameters:
-      - name: id
-        in: path
-        description: Задает ID товара
-        required: true
-        schema:
-          type: integer
-      requestBody:
-        description: Если задано поле `ID`, и оно отличается от параметра запроса,
-          то будет ошибка обновления
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-        required: true
-      responses:
-        202:
-          description: Товар успешно обновлен и показана новая версия
-          content:
-            application/json:
-              schema:
-                required:
-                - products
-                - status
-                type: object
-                properties:
-                  products:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
-                  status:
-                    type: integer
-                    example: 2
-        400:
-          description: Не хватает данных для обновления товара
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 6
-        403:
-          description: Попытка перезатереть `ID` товара
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 7
-        404:
-          description: Нет товара с таким `ID`, в ответе возвращается запрошенный
-            `ID`
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 4
-      x-codegen-request-body-name: body
-  /products:
-    get:
-      tags:
-      - products
-      summary: Get all products
-      description: |-
-        Получить спискок всех товаров.
-        Для пагинации используются аргументы `offset` для отступа и `count` для количества
-      parameters:
-      - name: offset
-        in: query
-        schema:
-          minimum: 0
-          type: integer
-      - name: count
-        in: query
-        schema:
-          maximum: 50
-          minimum: 0
-          type: integer
-      responses:
-        200:
-          description: Товары найдем и показаны. Даже для пустого набора будет этот
-            статус
-          content:
-            application/json:
-              schema:
-                required:
-                - products
-                - status
-                - total_amount
-                type: object
-                properties:
-                  products:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Product'
-                  status:
-                    type: integer
-                    example: 5
-                  total_amount:
-                    type: integer
-                    example: 1
-                  offset:
-                    type: integer
-                    description: only if set in query
-                  count:
-                    type: integer
-                    description: if set 'offset' or 'count' in query
-    post:
-      tags:
-      - products
-      summary: Add a new product
-      description: Создает новый товар с заданным названием и категорией
-      requestBody:
-        description: |-
-          Задает параметры нового товара
-          Даже если задано поле `ID`, оно будет перезаписано и вернется новое значение
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-        required: true
-      responses:
-        201:
-          description: Товар успешно создан, возвращается его `ID` и статус
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    $ref: '#/components/schemas/ID'
-                  status:
-                    type: integer
-                    example: 1
-        400:
-          description: Не хватает данных для создания товара
-          content:
-            application/json:
-              schema:
-                required:
-                - error
-                - status
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                  status:
-                    type: integer
-                    example: 6
       x-codegen-request-body-name: body
 components:
   schemas:
@@ -667,8 +989,8 @@ components:
       type: integer
     Product:
       required:
-      - category
-      - name
+        - category
+        - name
       type: object
       properties:
         id:
@@ -681,7 +1003,7 @@ components:
           example: furniture
     Error:
       required:
-      - base
+        - base
       type: object
       properties:
         base:
@@ -691,3 +1013,7 @@ components:
           type: object
           properties: {}
           description: Aruments for error template (such as ID)
+    AccessToken:
+      type: string
+    RefreshToken:
+      type: string

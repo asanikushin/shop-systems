@@ -15,15 +15,17 @@ responses: Dict[STATUS, RESPONSE] = {
     statuses["request"]["badArguments"]: 400,
 
     statuses["user"]["created"]: 201,
-    statuses["user"]["emailUsed"]: 400,
-    statuses["user"]["wrongPassword"]: 400,
+    statuses["user"]["emailUsed"]: 406,
+    statuses["user"]["wrongPassword"]: 403,
     statuses["user"]["noUser"]: 404,
+    statuses["user"]["missingData"]: 400,
 
     statuses["tokens"]["created"]: 201,
     statuses["tokens"]["noSuchToken"]: 404,
-    statuses["tokens"]["refreshTokenExpired"]: 400,
-    statuses["tokens"]["accessTokenExpired"]: 400,
+    statuses["tokens"]["refreshTokenExpired"]: 403,
+    statuses["tokens"]["accessTokenExpired"]: 403,
     statuses["tokens"]["accessOk"]: 200,
+    statuses["tokens"]["missingData"]: 400,
 }
 
 common_responses: Dict[str, RESPONSE] = {

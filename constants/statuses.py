@@ -7,31 +7,33 @@ STATUS = int
 _nums = Numerator(1)
 statuses: Dict[str, Dict[str, STATUS]] = {
     "product": {
-        "created": next(_nums),  # 1
-        "modified": next(_nums),  # 2
-        "deleted": next(_nums),  # 3
-        "notExists": next(_nums),  # 4
-        "returned": next(_nums),  # 5
-        "missingData": next(_nums),  # 6
-        "replacingID": next(_nums),  # 7
+        "created": 1,
+        "modified": 2,
+        "deleted": 3,
+        "notExists": 4,
+        "returned": 5,
+        "missingData": 6,
+        "replacingID": 7,
     },
     "internal": {
-        "correctProductData": next(_nums),  # 8
+        "correctProductData": 8,
     },
     "request": {
-        "badArguments": next(_nums),  # 9
+        "badArguments": 9,
     },
     "user": {
-        "created": next(_nums),  # 10
-        "emailUsed": next(_nums),  # 11
-        "wrongPassword": next(_nums),  # 12
-        "noUser": next(_nums),  # 13
+        "created": 10,
+        "emailUsed": 11,
+        "wrongPassword": 12,
+        "noUser": 13,
+        "missingData": 14
     },
     "tokens": {
-        "created": next(_nums),  # 14
-        "noSuchToken": next(_nums),  # 15
-        "refreshTokenExpired": next(_nums),  # 16
-        "accessTokenExpired": next(_nums),  # 17
-        "accessOk": next(_nums),  # 18
+        "created": 15,
+        "noSuchToken": 16,
+        "refreshTokenExpired": 17,
+        "accessTokenExpired": 18,
+        "accessOk": 19,
+        "missingData": 20
     }
 }

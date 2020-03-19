@@ -7,8 +7,14 @@ from flask import jsonify, request, current_app
 
 
 def sing_in():
-    email = request.json["email"]
-    password = request.json["password"]
+    try:
+        email = request.json["email"]
+        password = request.json["password"]
+    except KeyError:
+        status = constants.statuses["user"]["missingData"]
+        body = create_error_with_status(status, "missing user data")
+        current_app.logger.warn("Not enough data for sing-in")
+        return jsonify(body), constants.responses[status]
 
     current_app.logger.info(f"Sing in for {email}")
 

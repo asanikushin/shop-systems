@@ -7,8 +7,15 @@ from flask import jsonify, request, current_app
 
 
 def refresh_tokens():
-    token = request.json["token"]
     current_app.logger.info("Refresh tokens pair")
+    try:
+        token = request.json["token"]
+    except KeyError:
+        status = constants.statuses["tokens"]["missingData"]
+        body = create_error_with_status(status, "No token get")
+        current_app.logger.warn("No token for refreshment")
+        return jsonify(body), constants.responses[status]
+
     current_app.logger.debug(f"Refresh token value {token}")
 
     access, refresh, status = Storage.update_session(token)

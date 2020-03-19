@@ -7,9 +7,15 @@ from flask import jsonify, request, current_app
 
 
 def validate():
-    token = request.json["token"]
-
     current_app.logger.info(f"Validate token")
+    try:
+        token = request.json["token"]
+    except KeyError:
+        status = constants.statuses["tokens"]["missingData"]
+        body = create_error_with_status(status, "No token get")
+        current_app.logger.warn("No token for validation")
+        return jsonify(body), constants.responses[status]
+
     current_app.logger.debug(f"Access token value {token}")
 
     body, status = Storage.check_token(token)

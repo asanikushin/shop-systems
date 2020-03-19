@@ -32,7 +32,7 @@ def create_app(config_class="config.DevelopmentConfig"):
     from auth.handlers.validate import validate
 
     app.add_url_rule("/register", "register", register_user, methods=['POST'])
-    app.add_url_rule("/singin", "singin", sing_in, methods=['POST'])
+    app.add_url_rule("/sing_in", "sing_in", sing_in, methods=['POST'])
     app.add_url_rule("/refresh", "refresh", refresh_tokens, methods=['POST'])
     app.add_url_rule("/validate", "validate", validate, methods=['POST'])
 
