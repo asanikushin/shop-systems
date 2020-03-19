@@ -89,4 +89,6 @@ class Storage:
             value = jwt.decode(access_token, current_app.config["TOKENS_SECRET"], algorithms=['HS256'])
         except jwt.ExpiredSignatureError as err:
             return err, statuses["tokens"]["accessTokenExpired"]
+        except jwt.DecodeError as err:
+            return err, statuses["tokens"]["invalidToken"]
         return value, statuses["tokens"]["accessOk"]

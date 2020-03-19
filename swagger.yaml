@@ -169,6 +169,11 @@ paths:
           required: true
           schema:
             type: integer
+        - name: accessToken
+          in: header
+          schema:
+            $ref: '#/components/schemas/AccessToken'
+          required: true
       responses:
         '200':
           description: Товар успешно удален и показан пользователю
@@ -218,6 +223,11 @@ paths:
           required: true
           schema:
             type: integer
+        - name: accessToken
+          in: header
+          schema:
+            $ref: '#/components/schemas/AccessToken'
+          required: true
       requestBody:
         description: >-
           Если задано поле `ID`, и оно отличается от параметра запроса, то будет
@@ -361,6 +371,12 @@ paths:
         - products
       summary: Add a new product
       description: Создает новый товар с заданным названием и категорией
+      parameters:
+        - name: accessToken
+          in: header
+          schema:
+            $ref: '#/components/schemas/AccessToken'
+          required: true
       requestBody:
         description: >-
           Задает параметры нового товара
@@ -698,6 +714,21 @@ paths:
                   status:
                     type: integer
                     example: 18
+        '406':
+          description: Токен имеет невалидный формат
+          content:
+            application/json:
+              schema:
+                required:
+                  - error
+                  - status
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                  status:
+                    type: integer
+                    example: 21
   /products/v1/get_id:
     get:
       tags:

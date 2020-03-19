@@ -26,6 +26,7 @@ responses: Dict[STATUS, RESPONSE] = {
     statuses["tokens"]["accessTokenExpired"]: 403,
     statuses["tokens"]["accessOk"]: 200,
     statuses["tokens"]["missingData"]: 400,
+    statuses["tokens"]["invalidToken"]: 406,
 }
 
 common_responses: Dict[str, RESPONSE] = {

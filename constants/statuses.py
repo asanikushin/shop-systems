@@ -34,6 +34,7 @@ statuses: Dict[str, Dict[str, STATUS]] = {
         "refreshTokenExpired": 17,
         "accessTokenExpired": 18,
         "accessOk": 19,
-        "missingData": 20
+        "missingData": 20,
+        "invalidToken": 21,
     }
 }

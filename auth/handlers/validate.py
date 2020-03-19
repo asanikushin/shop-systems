@@ -23,6 +23,8 @@ def validate():
 
     if status == constants.statuses["tokens"]["accessOk"]:
         body = dict(status=status, value=body)
+    elif status == constants.statuses["tokens"]["invalidToken"]:
+        body = create_error_with_status(status, "Access token has invalid format", error=body)
     else:  # status == constants.statuses["tokens"]["accessTokenExpired"]:
         body = create_error_with_status(status, "Access token expired", error=body)
 

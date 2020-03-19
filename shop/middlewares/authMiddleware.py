@@ -18,7 +18,7 @@ class AuthMiddleware:
             self.logger.info("Auth request")
             auth_url = self.base.config["AUTH_SERVICE_URI"] + "/validate"
             self.logger.debug(auth_url)
-            auth = requests.post(auth_url, json={"token": request.headers["token"]})
+            auth = requests.post(auth_url, json={"token": request.headers["accessToken"]})
 
             self.logger.debug(str(auth.status_code) + str(auth.content))
             auth_status = auth.json()["status"]
