@@ -18,6 +18,12 @@ class AuthMiddleware:
             self.logger.info("Auth request")
             auth_url = self.base.config["AUTH_SERVICE_URI"] + "/validate"
             self.logger.debug(auth_url)
+            if "accessToken" not in request.headers:
+                self.logger.warn("No token for auth")
+                res = Response(json.dumps(create_error_with_status(0, "No token detected")), mimetype="application/json",
+                               status=constants.common_responses["No auth"])
+                return res(environ, start_response)
+
             auth = requests.post(auth_url, json={"token": request.headers["accessToken"]})
 
             self.logger.debug(str(auth.status_code) + str(auth.content))
@@ -25,6 +31,7 @@ class AuthMiddleware:
 
             if auth_status != constants.statuses["tokens"]["accessOk"]:
                 auth_error = auth.json()["error"]
+                self.logger.warn("Access token is not OK")
                 res = Response(json.dumps(create_error_with_status(0, auth_error)), mimetype="application/json",
                                status=constants.common_responses["No auth"])
                 return res(environ, start_response)

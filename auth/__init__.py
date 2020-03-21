@@ -4,21 +4,21 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+import auth.config
+
 import logging
 import os
 
 db = SQLAlchemy()
 migrate = Migrate()
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
 logging.basicConfig(
-    format='%(asctime)s %(levelname)-8s %(message)s',
+    format='%(asctime)s %(name)-8s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 
 
-def create_app(config_class="config.DevelopmentConfig"):
+def create_app(config_class="auth.config.DevelopmentConfig"):
     app = Flask(__name__)
     app.config.from_object(os.environ.get('FLASK_ENV') or config_class)
     app.json_encoder = CustomJSONEncoder
@@ -32,7 +32,7 @@ def create_app(config_class="config.DevelopmentConfig"):
     from auth.handlers.validate import validate
 
     app.add_url_rule("/register", "register", register_user, methods=['POST'])
-    app.add_url_rule("/sing_in", "sing_in", sing_in, methods=['POST'])
+    app.add_url_rule("/singin", "sing_in", sing_in, methods=['POST'])
     app.add_url_rule("/refresh", "refresh", refresh_tokens, methods=['POST'])
     app.add_url_rule("/validate", "validate", validate, methods=['POST'])
 

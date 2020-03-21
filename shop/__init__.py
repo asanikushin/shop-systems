@@ -10,6 +10,10 @@ import os
 db = SQLAlchemy()
 migrate = Migrate()
 
+logging.basicConfig(
+    format='%(asctime)s %(name)-8s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
