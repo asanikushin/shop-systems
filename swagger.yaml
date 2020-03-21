@@ -669,7 +669,7 @@ paths:
                 token:
                   $ref: '#/components/schemas/AccessToken'
       responses:
-        '201':
+        '200':
           description: 'Токен корректен и не истек, возвращется его содержимое'
           content:
             application/json:
