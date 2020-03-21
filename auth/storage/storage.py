@@ -45,21 +45,9 @@ class Storage:
         if not self.check_user(email, password):
             return None, None, statuses["user"]["wrongPassword"]
 
-        refresh_token = secrets.token_hex(64)
-        access_token = str(jwt.encode(
-            {"email": email, "exp": datetime.datetime.utcnow() + current_app.config["ACCESS_TOKEN_EXPIRATION"]},
-            current_app.config["TOKENS_SECRET"]))
-
-        session = Session(refreshToken=refresh_token,
-                          refreshTokenExpireAt=datetime.datetime.utcnow() + current_app.config[
-                              "REFRESH_TOKEN_EXPIRATION"])
-
         user = self.get_user(email)
-        session.userId = user.id
-
-        self._db.session.add(session)
-        self._db.session.commit()
-        return access_token, refresh_token, statuses["tokens"]["created"]
+        session = Session(userId=user.id)
+        return self.save_session(email, session)
 
     def update_session(self, refresh_token):
         now = datetime.datetime.utcnow()
@@ -70,18 +58,13 @@ class Storage:
 
         if now > session.refreshTokenExpireAt:
             return None, None, statuses["tokens"]["refreshTokenExpired"]
+
         user = User.query.get(session.userId)
+        new_session = Session(userId=user.id)
+        response = self.save_session(user.email, new_session)
 
-        refresh_token = secrets.token_hex(64)
-        access_token = str(jwt.encode(
-            {"email": user.email, "exp": datetime.datetime.utcnow() + current_app.config["ACCESS_TOKEN_EXPIRATION"]},
-            current_app.config["TOKENS_SECRET"], algorithm='HS256'))[2:-1]
-
-        session.refreshToken = refresh_token
-        session.refreshTokenExpireAt = datetime.datetime.utcnow() + current_app.config["REFRESH_TOKEN_EXPIRATION"]
-
-        self._db.session.commit()
-        return access_token, refresh_token, statuses["tokens"]["created"]
+        self.delete_session(session)
+        return response
 
     @staticmethod
     def check_token(access_token):
@@ -91,4 +74,33 @@ class Storage:
             return err, statuses["tokens"]["accessTokenExpired"]
         except jwt.DecodeError as err:
             return err, statuses["tokens"]["invalidToken"]
+        session_id = value["session"]
+        session = Session.query.get(session_id)
+        if session is None:
+            return "Related session was removed", statuses["tokens"]["invalidToken"]
         return value, statuses["tokens"]["accessOk"]
+
+    @staticmethod
+    def create_tokens(email, session, time=datetime.datetime.utcnow()):
+        refresh_token = secrets.token_hex(64)
+        access_token = str(jwt.encode(
+            {"email": email, "session": session.id,
+             "exp": time + current_app.config["ACCESS_TOKEN_EXPIRATION"]},
+            current_app.config["TOKENS_SECRET"]))[2:-1]
+
+        return access_token, refresh_token
+
+    def save_session(self, email, session):
+        self._db.session.add(session)
+        self._db.session.commit()
+
+        now = datetime.datetime.utcnow()
+        access_token, refresh_token = self.create_tokens(email, session, now)
+        session.refreshToken = refresh_token
+        session.refreshTokenExpireAt = now + current_app.config["REFRESH_TOKEN_EXPIRATION"]
+        self._db.session.commit()
+        return access_token, refresh_token, statuses["tokens"]["created"]
+
+    def delete_session(self, session):
+        self._db.session.delete(session)
+        self._db.session.commit()

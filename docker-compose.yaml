@@ -31,6 +31,7 @@ services:
       context: .
       dockerfile: auth/Dockerfile
     environment:
+      FLASK_ENV: config.ProductionConfig
       SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"
     ports:
       - "8082:5000"

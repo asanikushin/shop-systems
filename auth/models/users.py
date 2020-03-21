@@ -22,7 +22,7 @@ class User(db.Model):
 
 
 class Session(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     refreshToken = db.Column(db.Text)
     refreshTokenExpireAt = db.Column(db.DateTime)
     userId = db.Column(db.Integer, db.ForeignKey('user.id'))

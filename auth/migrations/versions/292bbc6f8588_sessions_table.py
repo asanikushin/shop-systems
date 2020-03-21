@@ -1,8 +1,8 @@
-"""session table
+"""sessions table
 
-Revision ID: f560910a5f6b
+Revision ID: 292bbc6f8588
 Revises: 
-Create Date: 2020-03-18 19:47:01.320574
+Create Date: 2020-03-21 12:23:37.486237
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f560910a5f6b'
+revision = '292bbc6f8588'
 down_revision = None
 branch_labels = None
 depends_on = None
