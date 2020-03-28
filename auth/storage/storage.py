@@ -3,10 +3,13 @@ from .types import *
 from auth.models.users import User, Session
 from auth import db
 from constants import statuses
+from utils.checkers import check_email
+from utils.queues import send_message
 
 from flask import current_app
 
 import jwt
+import json
 import secrets
 import datetime
 
@@ -19,10 +22,20 @@ class Storage:
         if self.has_email(email):
             return statuses["user"]["emailUsed"]
 
+        if not (email := check_email(email)):
+            return statuses["user"]["invalidEmail"]
+
         user = User(email=email)
         user.set_password(password)
+        user.confirmed = False
+
+        send_message(current_app.config["RABBITMQ"], current_app.config["QUEUE"],
+                     json.dumps(dict(email=email, text=f"To confirm go to {self.create_confirm_link(user)}",
+                                     subject="Conformation email")))
+
         self._db.session.add(user)
         self._db.session.commit()
+
         return statuses["user"]["created"]
 
     @staticmethod
@@ -34,7 +47,7 @@ class Storage:
         return User.query.filter(User.email == email).first()
 
     @staticmethod
-    def check_user(email, password):
+    def check_user(email, password) -> bool:
         user = Storage.get_user(email)
         return user.check_password(password)
 
@@ -46,6 +59,12 @@ class Storage:
             return None, None, statuses["user"]["wrongPassword"]
 
         user = self.get_user(email)
+
+        if not user.confirmed:
+            send_message(current_app.config["RABBITMQ"], current_app.config["QUEUE"],
+                         json.dumps(dict(email=email, text=f"To confirm go to {self.create_confirm_link(user)}")))
+            return None, None, statuses["user"]["notConfirmed"]
+
         session = Session(userId=user.id)
         return self.save_session(email, session)
 
@@ -63,7 +82,7 @@ class Storage:
         new_session = Session(userId=user.id)
         response = self.save_session(user.email, new_session)
 
-        self.delete_session(session)
+        self._delete_session(session)
         return response
 
     @staticmethod
@@ -81,7 +100,7 @@ class Storage:
         return value, statuses["tokens"]["accessOk"]
 
     @staticmethod
-    def create_tokens(email, session, time=datetime.datetime.utcnow()):
+    def create_tokens(email, session: Session, time=datetime.datetime.utcnow()):
         refresh_token = secrets.token_hex(64)
         access_token = str(jwt.encode(
             {"email": email, "session": session.id,
@@ -90,7 +109,12 @@ class Storage:
 
         return access_token, refresh_token
 
-    def save_session(self, email, session):
+    @staticmethod
+    def create_confirm_link(user: User):
+        token = str(jwt.encode({"email": user.email, "id": user.id}, current_app.config["TOKENS_SECRET"]))[2:-1]
+        return f"http://localhost:8082/confirm/{token}"
+
+    def save_session(self, email, session: Session):
         self._db.session.add(session)
         self._db.session.commit()
 
@@ -101,6 +125,17 @@ class Storage:
         self._db.session.commit()
         return access_token, refresh_token, statuses["tokens"]["created"]
 
-    def delete_session(self, session):
+    def _delete_session(self, session):
         self._db.session.delete(session)
         self._db.session.commit()
+
+    def confirm_user(self, token):
+        try:
+            value = jwt.decode(token, current_app.config["TOKENS_SECRET"], algorithms=['HS256'])
+        except jwt.DecodeError as err:
+            return err, statuses["tokens"]["invalidToken"]
+        user = User.query.get(value["id"])
+        user.confirmed = True
+        self._db.session.commit()
+
+        return None, statuses["user"]["confirmed"]

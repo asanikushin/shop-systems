@@ -1,5 +1,6 @@
 .idea
 app.db
+.emails
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

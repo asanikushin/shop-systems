@@ -33,7 +33,34 @@ services:
     environment:
       FLASK_ENV: config.ProductionConfig
       SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"
+      REFRESH_TOKEN_EXPIRATION: "1H 30M"
+      RABBITMQ: rabbitmq
+      QUEUE: "notifications"
     ports:
       - "8082:5000"
     depends_on:
       - db
+      - rabbitmq
+
+  notifications:
+    build:
+      context: .
+      dockerfile: notifications/Dockerfile
+    environment:
+      SMTP_URL: emailmock
+      RABBITMQ: rabbitmq
+      QUEUE: "notifications"
+      FROM_EMAIL: test@mock
+    depends_on:
+      - emailmock
+      - rabbitmq
+
+  emailmock:
+    build: mock-smtp
+    volumes:
+    - ./.emails:/var/lib/mock-smtp
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 15672:15672
