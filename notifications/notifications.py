@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-from config import BaseConfig
+from notifications import BaseConfig
+import utils
 
 import smtplib
 import pika
+
 import logging
 import json
-import time
+import socket
 
 
 def send_email(address: str, message: str, subject: str = ""):
@@ -31,7 +33,12 @@ def callback(ch, method, properties, body):
     logging.debug(" [x] Received %r" % (body,))
     logging.info(" [x] Received")
     data = json.loads(body)
-    send_email(address=data["email"], message=data["text"], subject=data["subject"])
+    try:
+        send_email(address=data["email"], message=data["text"], subject=data["subject"])
+    except socket.gaierror:
+        logging.error(" [o] Error while sending email")
+        return
+
     logging.info(" [x] Done")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -41,12 +48,11 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 
-logging.info("Before sleep")
-time.sleep(10)
-logging.info("After sleep")
-logging.info(BaseConfig.QUEUE)
+logging.info(__name__)
+logging.info("Start connecting")
+connection: pika.connection = utils.wait_connection(BaseConfig.RABBITMQ, logging)
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host=BaseConfig.RABBITMQ))
+logging.info(BaseConfig.QUEUE)
 channel = connection.channel()
 channel.queue_declare(queue=BaseConfig.QUEUE, durable=True)
 
