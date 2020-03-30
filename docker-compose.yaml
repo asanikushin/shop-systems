@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: shop
       POSTGRES_PASSWORD: ue3um2yRJA
-    ports:
-      - 5432:5432
 
   shop:
     build:
@@ -20,8 +18,7 @@ services:
       FLASK_ENV: config.ProductionConfig
       SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"
       AUTH_URL: auth
-    ports:
-      - "8081:8080"
+      AUTH_PORT: 5000
     depends_on:
       - db
       - auth
@@ -36,8 +33,7 @@ services:
       REFRESH_TOKEN_EXPIRATION: "1H 30M"
       RABBITMQ: rabbitmq
       QUEUE: "notifications"
-    ports:
-      - "8082:5000"
+      CONFIRM_URL: "http://localhost:80"
     depends_on:
       - db
       - rabbitmq
@@ -58,9 +54,18 @@ services:
   emailmock:
     build: mock-smtp
     volumes:
-    - ./.emails:/var/lib/mock-smtp
+      - ./.emails:/var/lib/mock-smtp
 
   rabbitmq:
     image: rabbitmq:3-management
+
+  nginx:
+    image: nginx:alpine
     ports:
-      - 15672:15672
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    links:
+      - shop:shop
+      - auth:auth
+      - rabbitmq:rabbitmq

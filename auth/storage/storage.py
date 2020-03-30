@@ -29,12 +29,10 @@ class Storage:
         user.set_password(password)
         user.confirmed = False
 
-        send_message(current_app.config["RABBITMQ"], current_app.config["QUEUE"],
-                     json.dumps(dict(email=email, text=f"To confirm go to {self.create_confirm_link(user)}",
-                                     subject="Conformation email")))
-
         self._db.session.add(user)
         self._db.session.commit()
+
+        self.send_confirm_message(user)
 
         return statuses["user"]["created"]
 
@@ -61,8 +59,7 @@ class Storage:
         user = self.get_user(email)
 
         if not user.confirmed:
-            send_message(current_app.config["RABBITMQ"], current_app.config["QUEUE"],
-                         json.dumps(dict(email=email, text=f"To confirm go to {self.create_confirm_link(user)}")))
+            self.send_confirm_message(user)
             return None, None, statuses["user"]["notConfirmed"]
 
         session = Session(userId=user.id)
@@ -112,7 +109,13 @@ class Storage:
     @staticmethod
     def create_confirm_link(user: User):
         token = str(jwt.encode({"email": user.email, "id": user.id}, current_app.config["TOKENS_SECRET"]))[2:-1]
-        return f"http://localhost:8082/confirm/{token}"
+        return f"{current_app.config['CONFIRM_URL']}/confirm/{token}"
+
+    @staticmethod
+    def send_confirm_message(user: User):
+        send_message(current_app.config["RABBITMQ"], current_app.config["QUEUE"], json.dumps(
+            dict(email=user.email, text=f"To confirm go to {Storage.create_confirm_link(user)}",
+                 subject="Conformation email")))
 
     def save_session(self, email, session: Session):
         self._db.session.add(session)
