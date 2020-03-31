@@ -19,9 +19,6 @@ services:
       SQLALCHEMY_DATABASE_URI: "postgresql://admin:ue3um2yRJA@db:5432/shop"
       AUTH_URL: auth
       AUTH_PORT: 5000
-    depends_on:
-      - db
-      - auth
 
   auth:
     build:
@@ -34,9 +31,6 @@ services:
       RABBITMQ: rabbitmq
       QUEUE: "notifications"
       CONFIRM_URL: "http://localhost:80"
-    depends_on:
-      - db
-      - rabbitmq
 
   notifications:
     build:
@@ -49,7 +43,6 @@ services:
       FROM_EMAIL: test@mock
     depends_on:
       - emailmock
-      - rabbitmq
 
   emailmock:
     build: mock-smtp
