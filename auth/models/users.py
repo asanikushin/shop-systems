@@ -4,8 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    confirmed = db.Column(db.Boolean())
     password_hash = db.Column(db.String(128))
 
     def set_password(self, password):

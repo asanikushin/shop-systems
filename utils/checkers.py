@@ -1,5 +1,7 @@
 from constants import STATUS, statuses
-from typing import Dict
+from typing import Dict, Optional
+
+from validate_email import validate_email
 
 
 def check_model_options(operation: str, options: Dict, model=None) -> STATUS:
@@ -28,3 +30,9 @@ def check_model_options(operation: str, options: Dict, model=None) -> STATUS:
             return statuses["product"]["missingData"]
     else:
         raise NotImplemented()
+
+
+def check_email(email: str) -> Optional[str]:
+    if validate_email(email):
+        return email
+    return None

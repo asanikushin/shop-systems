@@ -4,9 +4,8 @@ COPY requirements.txt requirements.txt
 RUN python -m pip install -r requirements.txt
 
 ENV FLASK_APP runner.py
-COPY auth/config.py auth/runner.py ./
+COPY auth/config.py auth/runner.py auth/run.sh ./
 
-COPY auth/run.sh ./
 RUN chmod +x run.sh runner.py
 
 COPY auth/migrations migrations

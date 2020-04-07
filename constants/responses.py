@@ -1,6 +1,8 @@
 from .statuses import STATUS, statuses
 from typing import Dict
 
+import logging
+
 RESPONSE = int
 
 responses: Dict[STATUS, RESPONSE] = {
@@ -19,6 +21,9 @@ responses: Dict[STATUS, RESPONSE] = {
     statuses["user"]["wrongPassword"]: 403,
     statuses["user"]["noUser"]: 404,
     statuses["user"]["missingData"]: 400,
+    statuses["user"]["invalidEmail"]: 400,
+    statuses["user"]["notConfirmed"]: 400,
+    statuses["user"]["confirmed"]: 200,
 
     statuses["tokens"]["created"]: 201,
     statuses["tokens"]["noSuchToken"]: 404,
@@ -34,3 +39,29 @@ common_responses: Dict[str, RESPONSE] = {
     "No auth": 401,
     "Not found": 404,
 }
+
+
+def _check_responses(skip_statuses=None):
+    if skip_statuses is None:
+        skip_statuses = []
+    bad = []
+    all_keys = set(responses.keys())
+    for key, value in statuses.items():
+        if key in skip_statuses:
+            continue
+        for sub_key, status in value.items():
+            if status in all_keys:
+                all_keys.remove(status)
+            if (key, sub_key) in skip_statuses:
+                continue
+            if status not in responses:
+                bad.append((key, sub_key))
+
+    if len(all_keys) != 0:
+        logging.info(f"Responses have other keys {all_keys}")
+
+    if len(bad) != 0:
+        raise RuntimeError(f"Not all statuses have http-response {bad}")
+
+
+_check_responses(["internal"])

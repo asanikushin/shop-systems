@@ -30,11 +30,13 @@ def create_app(config_class="auth.config.DevelopmentConfig"):
     from auth.handlers.singin import sing_in
     from auth.handlers.refresh import refresh_tokens
     from auth.handlers.validate import validate
+    from auth.handlers.confirm import confirm
 
     app.add_url_rule("/register", "register", register_user, methods=['POST'])
     app.add_url_rule("/singin", "sing_in", sing_in, methods=['POST'])
     app.add_url_rule("/refresh", "refresh", refresh_tokens, methods=['POST'])
     app.add_url_rule("/validate", "validate", validate, methods=['POST'])
+    app.add_url_rule("/confirm/<token>", "confirm", confirm, methods=['GET'])
 
     from swagger_ui import api_doc
     working_dir = os.path.dirname(os.path.abspath(__file__))

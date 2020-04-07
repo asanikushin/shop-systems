@@ -25,6 +25,8 @@ def sing_in():
         body = dict(status=status, accessToken=access, refreshToken=refresh)
     elif status == constants.statuses["user"]["wrongPassword"]:
         body = create_error_with_status(status, "wrong password for email {{email}}", email=email)
+    elif status == constants.statuses["user"]["notConfirmed"]:
+        body = create_error_with_status(status, "Account not confirmed")
     else:  # status == constants.statuses["user"]["noUser"]:
         body = create_error_with_status(status, "No user for email {{email}}", email=email)
     return jsonify(body), http_status
